@@ -75,9 +75,9 @@ class BlogGuestBookSubmission extends DataObject
      * @return String
      */
     public function purifyHtml($dirtyHtml) {
-        $purifier = new TidyHTMLCleaner();
-        return $purifier->cleanHTML($dirtyHtml);
+        $htmlEditorConfig = HtmlEditorConfig::get_active();
+        $purifier = new HtmlPurifierSanitiser($htmlEditorConfig);
+        return $purifier->sanitise($dirtyHtml);
     }
-
 
 }
