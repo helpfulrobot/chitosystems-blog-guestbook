@@ -50,6 +50,14 @@ class BlogGuestBookSubmission extends DataObject
     }
 
     /**
+     * @return mixed
+     */
+    public function getParent()
+    {
+        return $this->BlogGuestBookPage();
+    }
+
+    /**
      * @return Comment_SecurityToken
      */
     public function getSecurityToken()

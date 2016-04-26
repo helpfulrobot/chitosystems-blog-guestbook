@@ -1,3 +1,7 @@
 BlogGuestBookPage:
   extensions:
     - FormPageExtension
+
+BlogGuestBookForm:
+  extensions:
+    - BlogGuestBookNotifierExtension

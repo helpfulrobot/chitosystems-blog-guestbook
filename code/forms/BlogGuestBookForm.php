@@ -57,6 +57,9 @@ class BlogGuestBookForm extends Form
         $submission->BlogGuestBookPageID = $controller->ID;
         $submission->write();
 
+        // extend hook to allow extensions.
+        $this->extend('onAfterSubmission', $submission);
+
 
         $recipients = $controller->EmailRecipients();
         if (count($recipients)) {
