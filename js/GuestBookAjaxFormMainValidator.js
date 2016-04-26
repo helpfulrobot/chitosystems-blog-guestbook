@@ -67,10 +67,33 @@ var GuestBookAjaxFormMainValidator = function () {
                 }, 1000);
                 return "NotValidate";
             } else {
-                this.loadButtonAjaxStart(form);
-                this.loadAjaxStart(form.attr('id'));
-                return "Validate";
+                GuestBookAjaxFormMainValidator.loadButtonAjaxStart(form);
+                GuestBookAjaxFormMainValidator.loadAjaxStart(form.attr('id'));
+                GuestBookAjaxFormMainValidator.submit(form);
+
+                return true;
             }
+        },
+        submit: function (form) {
+
+            $("<div id=\"FormResponseMessage\"></div>").insertBefore(form.find('fieldset'));
+            var messageArea = $("#FormResponseMessage");
+
+            form.ajaxSubmit({
+                dataType: 'json',
+                type: 'post',
+                success: function (data) {
+                    messageArea.html('');
+                    messageArea.html(data.message);
+                    messageArea.addClass("good");
+                    messageArea.show();
+                    form.clearForm();
+                    form.resetForm();
+                    form.find('fieldset,.Actions').hide();
+                    GuestBookAjaxFormMainValidator.loadButtonAjaxStart(form, true);
+                    GuestBookAjaxFormMainValidator.loadAjaxStart(form.attr('id'), true);
+                }
+            });
         },
         process: function (form, data, messageArea) {
             messageArea.removeClass('alert alert-danger');

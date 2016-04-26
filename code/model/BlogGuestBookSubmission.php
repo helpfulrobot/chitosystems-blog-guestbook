@@ -40,20 +40,20 @@ class BlogGuestBookSubmission extends DataObject
         return $f;
     }
 
-    public function onBeforeWrite() {
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
 
         // Sanitize HTML, because its expected to be passed to the template unescaped later
-        $this->Content = $this->purifyHtml($this->Content);
+        //$this->Content = $this->purifyHtml($this->Content);
 
-        // Check comment depth
-        $this->updateDepth();
     }
 
     /**
      * @return Comment_SecurityToken
      */
-    public function getSecurityToken() {
+    public function getSecurityToken()
+    {
         return Injector::inst()->createWithArgs('GuestBook_SecurityToken', array($this));
     }
 
@@ -64,8 +64,9 @@ class BlogGuestBookSubmission extends DataObject
      *
      * @return string
      */
-    public function ApproveLink($member = null) {
-        if($this->canEdit($member) && !$this->Moderated) {
+    public function ApproveLink($member = null)
+    {
+        if ($this->canEdit($member) && !$this->Moderated) {
             return $this->actionLink('approve', $member);
         }
     }
@@ -74,7 +75,8 @@ class BlogGuestBookSubmission extends DataObject
      * @param $dirtyHtml
      * @return String
      */
-    public function purifyHtml($dirtyHtml) {
+    public function purifyHtml($dirtyHtml)
+    {
         $htmlEditorConfig = HtmlEditorConfig::get_active();
         $purifier = new HtmlPurifierSanitiser($htmlEditorConfig);
         return $purifier->sanitise($dirtyHtml);

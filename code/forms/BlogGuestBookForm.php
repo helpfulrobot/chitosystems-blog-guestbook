@@ -44,6 +44,7 @@ class BlogGuestBookForm extends Form
      */
     function doSubmit(array $raw_data, Form $form)
     {
+        $aResponse = [];
         $controller = $form->getController();
         $data = Convert::raw2sql($raw_data);
         if (strlen($data['time']) > 0) {
@@ -56,7 +57,7 @@ class BlogGuestBookForm extends Form
         $submission->BlogGuestBookPageID = $controller->ID;
         $submission->write();
 
-        $response = $controller->OnCompleteMessage;
+
         $recipients = $controller->EmailRecipients();
         if (count($recipients)) {
             foreach ($recipients as $recipient) {
@@ -69,7 +70,17 @@ class BlogGuestBookForm extends Form
                 $email->send();
             }
         }
-        return sprintf("<div class=\"alert alert-success\">%s</div>", $response);
+
+        $msg = $controller->OnCompleteMessage;
+        if (Director::is_ajax()) {
+            $response['message'] = sprintf("<div class=\"alert alert-success \">%s</div>", $msg);
+            $response['status'] = 'success';
+            return Convert::raw2json($response);
+        } else {
+            $form->sessionMessage($msg, "alert alert-success good");
+            return $controller->redirectBack();
+        }
+
     }
 
 
@@ -89,7 +100,7 @@ class BlogGuestBookForm extends Form
             'Required' => implode(',', $aRequired),
             'EmailFieldId' => sprintf("#%s_%s", $form->FormName(), 'Email')
         );
-        Requirements::javascriptTemplate(PROJECT . '/js/GuestBookFormValidation.js', $vars);
+        Requirements::javascriptTemplate(BLOG_GUESTBOOK_DIR . '/js/GuestBookFormValidation.js', $vars);
     }
 
 }
