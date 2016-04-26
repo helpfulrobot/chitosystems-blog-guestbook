@@ -1,0 +1,3 @@
+BlogGuestBookPage:
+  extensions:
+    - FormPageExtension

@@ -1,0 +1,18 @@
+$red: #900;
+
+.chzn-container.chzn-container-single.needsfilled a.chzn-single,
+.select-1 .chzn-container-single.needsfilled a.chzn-single,
+.needsfilled {
+  color: $red !important;
+  font-weight: bold !important;
+  border-color: $red;
+}
+
+.hasRequired {
+  label {
+    i {
+      color: $red;
+      font-size: 10px;
+    }
+  }
+}
