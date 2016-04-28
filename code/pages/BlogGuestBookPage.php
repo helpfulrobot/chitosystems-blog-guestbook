@@ -4,6 +4,7 @@ class BlogGuestBookPage extends Page
 {
     private static $db = array(
         "NotificationSubject" =>"Varchar(255)",
+        "SendEmailToAdmin" =>"Boolean",
     );
     private static $has_one = array(
         "GuestBook" => "Blog",

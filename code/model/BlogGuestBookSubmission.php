@@ -23,6 +23,7 @@ class BlogGuestBookSubmission extends DataObject
     );
     private static $has_one = array(
         "BlogGuestBookPage" => "BlogGuestBookPage",
+        "GuestBookLinking" => "BlogPost",
     );
 
     private static $summary_fields = array(
@@ -30,6 +31,10 @@ class BlogGuestBookSubmission extends DataObject
         'Email',
         'Author',
         'Created'
+    );
+
+    private static $better_buttons_actions = array(
+        'ApprovePost',
     );
 
     function getCMSFields()
@@ -47,6 +52,51 @@ class BlogGuestBookSubmission extends DataObject
         // Sanitize HTML, because its expected to be passed to the template unescaped later
         //$this->Content = $this->purifyHtml($this->Content);
 
+    }
+
+    //This action will allow the admin to set this items as feaured or not
+    public function updateBetterButtonsActions($actions)
+    {
+        $actions->push(
+            BetterButtonCustomAction::create('ApprovePost', 'Approve')
+                ->setRedirectType(BetterButtonCustomAction::REFRESH)
+                ->setSuccessMessage('This Post Has Been Approved')
+        );
+        return $actions;
+    }
+
+    //markAsFeatured
+    public function ApprovePost()
+    {
+        $this->Moderated = true;
+        $this->write();
+
+        $parent = $this->getParent();
+        if ($parent->GuestBookID) {
+            $GuestBook = $parent->GuestBook();
+            $GuestBookPageChildClass = $this->getGuestBookPageChildClass($GuestBook->ClassName);
+            if ($GuestBookPageChildClass) {
+                $GuestBook = $GuestBookPageChildClass::create();
+                $GuestBook->Title = $this->Title;
+                $GuestBook->AuthorNames = $this->Author;
+                $GuestBook->Content = $this->Content;
+                $GuestBook->PublishDate = SS_Datetime::now()->getValue();
+
+                $GuestBook->write();
+                $GuestBook->doRestoreToStage();
+                $GuestBook->writeToStage('Stage');
+                $this->GuestBookLinkingID = $this->ID;
+            }
+        }
+
+        $this->write();
+
+    }
+
+
+    private function getGuestBookPageChildClass($ClassName)
+    {
+        return Config::inst()->get($ClassName, 'allowed_children');
     }
 
     /**
@@ -85,9 +135,9 @@ class BlogGuestBookSubmission extends DataObject
      */
     public function purifyHtml($dirtyHtml)
     {
-        $htmlEditorConfig = HtmlEditorConfig::get_active();
-        $purifier = new HtmlPurifierSanitiser($htmlEditorConfig);
-        return $purifier->sanitise($dirtyHtml);
+        //$htmlEditorConfig = HtmlEditorConfig::get_active();
+        //$purifier = new HtmlPurifierSanitiser($htmlEditorConfig);
+        //return $purifier->sanitise($dirtyHtml);
     }
 
 }
