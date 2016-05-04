@@ -28,7 +28,7 @@ class BlogGuestBookNotifierExtension extends Extension
     {
         $subject = $parent->NotificationSubject;
         $sender = $submission->Email;
-        $template = "BlogGuestBoogEmail";
+        $template = "BlogGuestBlogEmail";
         // Validate email
         // Important in case of the owner being a default-admin or a username with no contact email
         $to = $recipient->EmailAddress;
