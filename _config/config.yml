@@ -5,3 +5,6 @@ BlogGuestBookPage:
 BlogGuestBookForm:
   extensions:
     - BlogGuestBookNotifierExtension
+Blog:
+  allowed_children:
+    - BlogGuestBookPage
