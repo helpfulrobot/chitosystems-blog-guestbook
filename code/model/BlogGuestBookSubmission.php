@@ -12,7 +12,7 @@ class BlogGuestBookSubmission extends DataObject
         'Title' => 'Varchar(255)',
         'Email' => 'Varchar(255)',
         'Author' => 'Varchar(255)',
-        'Date'=>'Date',
+        'Date' => 'Date',
         'Content' => 'Text',
         'Moderated' => 'Boolean(0)',
         'IsApproved' => 'Boolean(0)',
@@ -26,6 +26,7 @@ class BlogGuestBookSubmission extends DataObject
     private static $has_one = array(
         "BlogGuestBookPage" => "BlogGuestBookPage",
         "GuestBookLinking" => "BlogPost",
+        "Image" => "Image",
     );
 
     private static $summary_fields = array(
@@ -145,7 +146,7 @@ class BlogGuestBookSubmission extends DataObject
             $GuestBook->ShowInMenu = $this->Content;
             $GuestBook->PublishDate = SS_Datetime::now()->getValue();
             $GuestBook->ParentID = $oBlogParent->ID;
-
+            $GuestBook->FeaturedImageID = $this->ImageID;
             $GuestBook->doPublish();
             $GuestBook->write();
             $GuestBook->doRestoreToStage();

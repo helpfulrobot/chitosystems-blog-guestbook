@@ -11,17 +11,24 @@ class BlogGuestBookForm extends Form
         //UtilityExtra::includeTinymce();
         $f = new FieldList();
         $f->push(BootstrapTextField::create('Title'));
-        $f->push(BootstrapEmailField::create('Email','Email (will not be published)'));
-        $f->push(BootstrapTextField::create('Author','Your name'));
-        $f->push(BootstrapDateField::create('Date'));
-        $f->push(BootstrapTextareaField::create('Content','Your Experience'));//->addExtraClass('full-width mceEditor'));
-        $f->push(BootstrapFileField::create('Image','Upload an image (Please keep file size below 1MB)'));
+        $f->push(BootstrapEmailField::create('Email', 'Email (will not be published)'));
+        $f->push(BootstrapTextField::create('Author', 'Your name'));
+        $f->push(
+            BootstrapDateField::create('Date')
+                ->setConfig('showcalendar', true)
+                ->setConfig('datavalueformat', 'd/m/Y')
+
+        );
+        $f->push(BootstrapTextareaField::create('Content', 'Your Experience'));//->addExtraClass('full-width mceEditor'));
+        $f->push(FileField::create('Image', 'Upload an image (Please keep file size below 1MB)'));
         $actions = new FieldList(
             $btn = new FormAction('doSubmit', 'Submit')
         );
         $btn->addExtraClass("btn btn-default");
 
-        $aRequiredFields = array();
+        $aRequiredFields = array(
+            "Date"
+        );
         $aRequiredFields[] = "Title";
         $aRequiredFields[] = "Email";
         $aRequiredFields[] = "Author";
@@ -56,6 +63,20 @@ class BlogGuestBookForm extends Form
         $submission = BlogGuestBookSubmission::create();
         $form->saveInto($submission);
         $submission->BlogGuestBookPageID = $controller->ID;
+
+        $up = new Upload();
+        $file = Object::create('Image');
+        //$file->setFileName('newname');
+        $up->loadIntoFile($data['Image'], $file, 'Uploads/GuestBookImages');
+
+        if ($up->isError()) {
+            //handle error here
+            //var_dump($up->getErrors());
+        } else {
+            //file uploaded
+            $submission->ImageID = $file->ID;
+        }
+
         $submission->write();
 
         // extend hook to allow extensions.
