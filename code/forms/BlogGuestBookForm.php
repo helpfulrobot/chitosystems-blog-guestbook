@@ -11,10 +11,11 @@ class BlogGuestBookForm extends Form
         //UtilityExtra::includeTinymce();
         $f = new FieldList();
         $f->push(BootstrapTextField::create('Title'));
-        $f->push(BootstrapTextField::create('Author'));
-        $f->push(BootstrapEmailField::create('Email'));
-        $f->push(BootstrapTextareaField::create('Content'));//->addExtraClass('full-width mceEditor'));
-
+        $f->push(BootstrapEmailField::create('Email','Email (will not be published)'));
+        $f->push(BootstrapTextField::create('Author','Your name'));
+        $f->push(BootstrapDateField::create('Date'));
+        $f->push(BootstrapTextareaField::create('Content','Your Experience'));//->addExtraClass('full-width mceEditor'));
+        $f->push(BootstrapFileField::create('Image','Upload an image (Please keep file size below 1MB)'));
         $actions = new FieldList(
             $btn = new FormAction('doSubmit', 'Submit')
         );

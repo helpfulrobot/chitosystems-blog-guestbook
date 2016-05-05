@@ -12,6 +12,7 @@ class BlogGuestBookSubmission extends DataObject
         'Title' => 'Varchar(255)',
         'Email' => 'Varchar(255)',
         'Author' => 'Varchar(255)',
+        'Date'=>'Date',
         'Content' => 'Text',
         'Moderated' => 'Boolean(0)',
         'IsApproved' => 'Boolean(0)',
