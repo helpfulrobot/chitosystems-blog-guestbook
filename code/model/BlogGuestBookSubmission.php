@@ -31,6 +31,9 @@ class BlogGuestBookSubmission extends DataObject
         'Title',
         'Email',
         'Author',
+        'Moderated',
+        'IsSpam',
+        'IsApproved',
         'Created'
     );
 
@@ -138,12 +141,14 @@ class BlogGuestBookSubmission extends DataObject
             $GuestBook->Title = $this->Title;
             $GuestBook->AuthorNames = $this->Author;
             $GuestBook->Content = $this->Content;
+            $GuestBook->ShowInMenu = $this->Content;
             $GuestBook->PublishDate = SS_Datetime::now()->getValue();
             $GuestBook->ParentID = $oBlogParent->ID;
 
+            $GuestBook->doPublish();
             $GuestBook->write();
             $GuestBook->doRestoreToStage();
-            $GuestBook->writeToStage('Stage');
+            $GuestBook->writeToStage("Stage", "Live");
             $this->GuestBookLinkingID = $GuestBook->ID;
         }
 

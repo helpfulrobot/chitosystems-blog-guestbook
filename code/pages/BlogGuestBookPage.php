@@ -19,12 +19,14 @@ class BlogGuestBookPage extends Page
     {
         $f = parent::getCMSFields();
 
+        /*
         $Blogs = Blog::get();
         $BlogMap = $Blogs ? $Blogs->map() : [];
 
         $f->addFieldToTab('Root.GuestBook', DropdownField::create("GuestBookID", "GuestBook")
             ->setEmptyString("--select one--")
             ->setSource($BlogMap));
+        */
 
         $GridFieldConfig = GridFieldConfig_RecordEditor::create();
         $GridField = new GridField('GuestBookSubmissions', 'GuestBookSubmissions', $this->GuestBookSubmissions(), $GridFieldConfig);
