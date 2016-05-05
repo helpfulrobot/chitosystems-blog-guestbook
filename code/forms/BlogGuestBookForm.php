@@ -8,12 +8,12 @@ class BlogGuestBookForm extends Form
      */
     function __construct(Controller $controller, $name)
     {
-        UtilityExtra::includeTinymce();
+        //UtilityExtra::includeTinymce();
         $f = new FieldList();
         $f->push(BootstrapTextField::create('Title'));
         $f->push(BootstrapTextField::create('Author'));
         $f->push(BootstrapEmailField::create('Email'));
-        $f->push(TextareaField::create('Content')->addExtraClass('full-width mceEditor'));
+        $f->push(TextareaField::create('Content'));//->addExtraClass('full-width mceEditor'));
 
         $actions = new FieldList(
             $btn = new FormAction('doSubmit', 'Submit')

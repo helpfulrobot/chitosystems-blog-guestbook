@@ -12,8 +12,9 @@ class BlogGuestBookSubmission extends DataObject
         'Title' => 'Varchar(255)',
         'Email' => 'Varchar(255)',
         'Author' => 'Varchar(255)',
-        'Content' => 'HTMLText',
+        'Content' => 'Text',
         'Moderated' => 'Boolean(0)',
+        'IsApproved' => 'Boolean(0)',
         'IsSpam' => 'Boolean(0)',
 
     );
@@ -34,13 +35,15 @@ class BlogGuestBookSubmission extends DataObject
     );
 
     private static $better_buttons_actions = array(
-        'ApprovePost',
+        'approve',
+        'deny',
+
     );
 
     function getCMSFields()
     {
         $f = parent::getCMSFields();
-        $f->removeByName(array("BlogGuestBookPageID"));
+        $f->removeByName(array("BlogGuestBookPageID", "GuestBookLinkingID", "Moderated", "IsSpam", "IsApproved"));
 
         return $f;
     }
@@ -54,49 +57,121 @@ class BlogGuestBookSubmission extends DataObject
 
     }
 
-    //This action will allow the admin to set this items as feaured or not
-    public function updateBetterButtonsActions($actions)
+    public function getBetterButtonsActions()
     {
-        $actions->push(
-            BetterButtonCustomAction::create('ApprovePost', 'Approve')
-                ->setRedirectType(BetterButtonCustomAction::REFRESH)
-                ->setSuccessMessage('This Post Has Been Approved')
-        );
-        return $actions;
+        $fields = parent::getBetterButtonsActions();
+        if ($this->IsApproved) {
+            $fields->push(
+                BetterButtonCustomAction::create('deny', 'Deny')
+                    ->setRedirectType(BetterButtonCustomAction::REFRESH)
+            );
+        } else {
+            $fields->push(
+                BetterButtonCustomAction::create('approve', 'Approve')
+                    ->setRedirectType(BetterButtonCustomAction::REFRESH)
+            );
+        }
+
+        if ($this->IsApproved && $this->IsApproved) {
+            $fields->push(
+                new BetterButtonLink_TargetWindow(
+                    'View Post on site',
+                    $this->getPublishedBlogLink()
+                )
+            );
+            $fields->push(
+                new BetterButtonLink(
+                    'View In CMS',
+                    $this->getCMSEditLink()
+                )
+            );
+        }
+
+        return $fields;
     }
 
+
+    function getPublishedBlogLink()
+    {
+
+        return $this->GuestBookLinking()->Link();
+    }
+
+    function getCMSEditLink()
+    {
+        return Controller::join_links("admin/pages/edit/show/", $this->GuestBookLinking()->ID, "/");
+    }
+
+
+    /**
+     * //This action will allow the admin to set this items as feaured or not
+     * public function updateBetterButtonsActions($actions)
+     * {
+     * $actions->push(
+     * BetterButtonCustomAction::create('ApprovePost', 'Approve')
+     * ->setRedirectType(BetterButtonCustomAction::REFRESH)
+     * ->setSuccessMessage('This Post Has Been Approved')
+     * );
+     * return $actions;
+     * }
+     *
+     * */
+
     //markAsFeatured
-    public function ApprovePost()
+    public function approve()
     {
         $this->Moderated = true;
+        $this->IsApproved = true;
         $this->write();
 
         $parent = $this->getParent();
-        if ($parent->GuestBookID) {
-            $GuestBook = $parent->GuestBook();
-            $GuestBookPageChildClass = $this->getGuestBookPageChildClass($GuestBook->ClassName);
-            if ($GuestBookPageChildClass) {
-                $GuestBook = $GuestBookPageChildClass::create();
-                $GuestBook->Title = $this->Title;
-                $GuestBook->AuthorNames = $this->Author;
-                $GuestBook->Content = $this->Content;
-                $GuestBook->PublishDate = SS_Datetime::now()->getValue();
 
-                $GuestBook->write();
-                $GuestBook->doRestoreToStage();
-                $GuestBook->writeToStage('Stage');
-                $this->GuestBookLinkingID = $this->ID;
-            }
+        //debug::show($parent->ClassName);
+        if ($parent->GuestBookID) {
+
+            $GuestBookPage = $parent->GuestBook();
+            $oBlogParent = $GuestBookPage->Level(1);
+
+            //$GuestBookPageChildClass = $this->getGuestBookPageChildClass($GuestBook);
+
+            $GuestBook = new BlogPost();
+            $GuestBook->Title = $this->Title;
+            $GuestBook->AuthorNames = $this->Author;
+            $GuestBook->Content = $this->Content;
+            $GuestBook->PublishDate = SS_Datetime::now()->getValue();
+            $GuestBook->ParentID = $oBlogParent->ID;
+
+            $GuestBook->write();
+            $GuestBook->doRestoreToStage();
+            $GuestBook->writeToStage('Stage');
+            $this->GuestBookLinkingID = $GuestBook->ID;
         }
 
         $this->write();
+        return 'Submission published';
+    }
 
+    public function deny()
+    {
+
+
+        $this->IsApproved = false;
+        $this->IsSpam = true;
+        $this->Moderated = true;
+        $this->write();
+
+        return 'Denied for publication';
     }
 
 
-    private function getGuestBookPageChildClass($ClassName)
+    private function getGuestBookPageChildClass($GuestBook)
     {
-        return Config::inst()->get($ClassName, 'allowed_children');
+        $oParent = $GuestBook->Level(1);
+        if ($oParent->ClassName === 'NewsHolder') {
+            return "NewsPage";
+        } else {
+            return "BlogPost";
+        }
     }
 
     /**
